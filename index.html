@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pong Game</title>
+    <style>
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            background: #000;
+        }
+        canvas {
+            border: 2px solid #fff;
+            background: #000;
+        }
+    </style>
+</head>
+<body>
+    <canvas id="pongCanvas" width="800" height="400"></canvas>
+    <script>
+        const canvas = document.getElementById('pongCanvas');
+        const ctx = canvas.getContext('2d');
+
+        // Paddle settings
+        const paddleWidth = 10;
+        const paddleHeight = 100;
+        const playerSpeed = 5;
+
+        let leftPaddleY = canvas.height / 2 - paddleHeight / 2;
+        let rightPaddleY = canvas.height / 2 - paddleHeight / 2;
+
+        // Ball settings
+        let ballX = canvas.width / 2;
+        let ballY = canvas.height / 2;
+        let ballRadius = 10;
+        let ballSpeedX = 4;
+        let ballSpeedY = 3;
+
+        // Controls
+        let upPressed = false;
+        let downPressed = false;
+
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'ArrowUp') {
+                upPressed = true;
+            } else if (e.key === 'ArrowDown') {
+                downPressed = true;
+            }
+        });
+
+        document.addEventListener('keyup', (e) => {
+            if (e.key === 'ArrowUp') {
+                upPressed = false;
+            } else if (e.key === 'ArrowDown') {
+                downPressed = false;
+            }
+        });
+
+        // Game loop
+        function gameLoop() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            drawPaddles();
+            drawBall();
+            moveBall();
+            movePaddles();
+            requestAnimationFrame(gameLoop);
+        }
+
+        function drawPaddles() {
+            ctx.fillStyle = '#fff';
+            // Left Paddle (AI controlled)
+            ctx.fillRect(0, leftPaddleY, paddleWidth, paddleHeight);
+            // Right Paddle (Player controlled)
+            ctx.fillRect(canvas.width - paddleWidth, rightPaddleY, paddleWidth, paddleHeight);
+        }
+
+        function drawBall() {
+            ctx.beginPath();
+            ctx.arc(ballX, ballY, ballRadius, 0, Math.PI * 2);
+            ctx.fillStyle = '#fff';
+            ctx.fill();
+            ctx.closePath();
+        }
+
+        function movePaddles() {
+            // Move right paddle based on user input
+            if (upPressed && rightPaddleY > 0) {
+                rightPaddleY -= playerSpeed;
+            } else if (downPressed && rightPaddleY < canvas.height - paddleHeight) {
+                rightPaddleY += playerSpeed;
+            }
+
+            // Move left paddle to follow the ball (basic AI)
+            if (ballY < leftPaddleY + paddleHeight / 2) {
+                leftPaddleY -= playerSpeed;
+            } else if (ballY > leftPaddleY + paddleHeight / 2) {
+                leftPaddleY += playerSpeed;
+            }
+        }
+
+        function moveBall() {
+            ballX += ballSpeedX;
+            ballY += ballSpeedY;
+
+            // Ball collision with top and bottom
+            if (ballY + ballRadius > canvas.height || ballY - ballRadius < 0) {
+                ballSpeedY = -ballSpeedY;
+            }
+
+            // Ball collision with paddles
+            if (ballX - ballRadius < paddleWidth &&
+                ballY > leftPaddleY &&
+                ballY < leftPaddleY + paddleHeight) {
+                ballSpeedX = -ballSpeedX;
+            }
+
+            if (ballX + ballRadius > canvas.width - paddleWidth &&
+                ballY > rightPaddleY &&
+                ballY < rightPaddleY + paddleHeight) {
+                ballSpeedX = -ballSpeedX;
+            }
+
+            // Ball goes out of bounds (reset to center)
+            if (ballX - ballRadius < 0 || ballX + ballRadius > canvas.width) {
+                ballX = canvas.width / 2;
+                ballY = canvas.height / 2;
+                ballSpeedX = -ballSpeedX;
+            }
+        }
+
+        gameLoop();
+    </script>
+</body>
+</html>
