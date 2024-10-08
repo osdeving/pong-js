@@ -12,15 +12,42 @@
             height: 100vh;
             margin: 0;
             background: #000;
+            overflow: hidden;
         }
         canvas {
             border: 2px solid #fff;
             background: #000;
+            width: 100%;
+            max-width: 800px;
+            height: auto;
+        }
+        .mobile-controls {
+            position: fixed;
+            bottom: 20px;
+            width: 100%;
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+        }
+        .button {
+            width: 60px;
+            height: 60px;
+            background: #fff;
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 24px;
+            user-select: none;
         }
     </style>
 </head>
 <body>
     <canvas id="pongCanvas" width="800" height="400"></canvas>
+    <div class="mobile-controls">
+        <div class="button" id="upButton">&#9650;</div>
+        <div class="button" id="downButton">&#9660;</div>
+    </div>
     <script>
         const canvas = document.getElementById('pongCanvas');
         const ctx = canvas.getContext('2d');
@@ -59,6 +86,16 @@
                 downPressed = false;
             }
         });
+
+        // Mobile controls
+        const upButton = document.getElementById('upButton');
+        const downButton = document.getElementById('downButton');
+
+        upButton.addEventListener('touchstart', () => upPressed = true);
+        upButton.addEventListener('touchend', () => upPressed = false);
+
+        downButton.addEventListener('touchstart', () => downPressed = true);
+        downButton.addEventListener('touchend', () => downPressed = false);
 
         // Game loop
         function gameLoop() {
